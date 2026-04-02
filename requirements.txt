@@ -1,2 +1,17 @@
 numpy>=1.24.0
 pandas>=2.0.0
+matplotlib
+seaborn
+tqdm
+ir-measures
+ir-datasets
+pingouin
+nltk
+gensim
+faiss_cpu
+diffprivlib
+importlib_resources
+spacy
+wn
+torch
+transformers

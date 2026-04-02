@@ -1,0 +1,3 @@
+[submodule "DP-COMET"]
+	path = DP-COMET
+	url = git@github.com:abraexe/DP-COMET.git

@@ -122,3 +122,4 @@ ehthumbs.db
 Thumbs.db
 *.csv
 data/user-ct-test-collection-02.txt
+data/samples/*
