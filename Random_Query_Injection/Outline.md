@@ -12,6 +12,12 @@ AnonID, Query, QueryTime, SessionID, label
 
 Label will binary: real / fake
 
-## Fake QUery Injection
+## Fake Query Injection Strategy
 
-## Injection Strategy
+In the queries, the following will be added:
+
+- Random words (1~3 words)
+- Dictionary-based (or simple random)
+- English only (initial version)
+
+Fake queries will be inserted in real queries.
