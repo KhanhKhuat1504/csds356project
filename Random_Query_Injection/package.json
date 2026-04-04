@@ -1,0 +1,17 @@
+{
+  "name": "random_query_injection",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generateFakeQueries.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "json2csv": "^6.0.0-alpha.2"
+  }
+}

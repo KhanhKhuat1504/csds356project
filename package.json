@@ -1,0 +1,25 @@
+{
+  "name": "csds356project",
+  "version": "1.0.0",
+  "description": "First download the dataset `user-ct-test-collection-02.txt` from Kaggle and put it under the `data/` directory. This is a tab-separated file with columns: AnonID, Query, QueryTime, ItemRank, ClickURL.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KhanhKhuat1504/csds356project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KhanhKhuat1504/csds356project/issues"
+  },
+  "homepage": "https://github.com/KhanhKhuat1504/csds356project#readme",
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "json2csv": "^6.0.0-alpha.2"
+  }
+}
