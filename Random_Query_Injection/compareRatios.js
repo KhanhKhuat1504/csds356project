@@ -1,10 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
-const TOP_N_MEASURE = 80;
+// # of top words to compare between original and obfuscated datasets
+const TOP_N_MEASURE = 50; 
+// # of top words to print 
 const TOP_N_PRINT = 15;
 
-
+// list of common English stopwords to exclude from the analysis if wanted
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "but", "by",
   "for", "from", "has", "have", "he", "her", "his", "i",
@@ -39,6 +41,8 @@ function normalizeQuery(text) {
     .trim();
 }
 
+// Cleans and tokenizes a query string, optionally removing stopwords. 
+// For this analysis, we keep all words to better
 function tokenize(text) {
   const cleaned = normalizeQuery(text).replace(/[^a-z0-9\s]/g, " ");
 
@@ -46,7 +50,8 @@ function tokenize(text) {
     .split(/\s+/)
     .map(token => token.trim())
     .filter(Boolean)
-    .filter(token => !STOPWORDS.has(token));
+     // .filter(token => !STOPWORDS.has(token));
+     // If stopword removal is desired, uncomment the above line. For now, we keep all words to better analyze the impact of RQI on common terms.
 }
 
 function getWordFrequency(rows) {
