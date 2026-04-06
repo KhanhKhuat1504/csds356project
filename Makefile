@@ -45,6 +45,16 @@ attack:
 	cd Attacker && make all_ob_injected_fakes
 
 
+# Compare the control and experiment outputs to calculate relative privacy
+CONTROL ?= ../output_baseline # change this for specific ouput folders, all folders need attack_metrics.pkl
+EXPERIMENT ?= ../output_rqi
+relative_privacy:
+	cd Attacker && python relative_privacy.py \
+		--control $(CONTROL) \
+		--experiment $(EXPERIMENT) \
+		--output_dir ../output_comparison
+
+
 # Full process
 setup:
 	make setup_npm

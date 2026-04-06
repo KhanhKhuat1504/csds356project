@@ -8,7 +8,7 @@ clean:
 # Adds Label/Role columns to aol_sample.csv, writes pipeline_ready_base.csv
 sample:
 	python sample_aol.py \
-		--input_path data/user-ct-test-collection-02.txt \
+		--input_path ../data/user-ct-test-collection-02.txt \
 		--output_csv ../data/aol_sample.csv \
 		--output_queries_only_csv ../data/aol_queries_only.csv \
 		--target_users 1000 \
@@ -37,7 +37,7 @@ split_train:
 # Apply DP-Comet obfuscation, writes with real+fakes
 
 # Cleans the RQI output, writes aol_rqi_ratio_1_1_english_spanish_french_1-3.csv from fakes additon
-RQI_INPUT ?= ../outputs/aol_rqi_ratio_1_1_english_spanish_french_1-3.csv
+RQI_INPUT ?= ../rqi_data/aol_rqi_ratio_1_1_english_spanish_french_1-3.csv
 clean_rqi_output:
 	python temp_clean.py \
 		--input $(RQI_INPUT) \
@@ -81,6 +81,5 @@ phase6:
 		--output_dir ../output
 
 all_easy_fakes: sample gen_fakes phase2 phase3 phase4 phase5 phase6 # assign correct input to gen_fakes (data/aol_sample.csv)
-all_ob_easy_fakes: gen_fakes phase2 phase3 phase4 phase5 phase6 # assign correct input to gen_fakes (data/obfuscated_aol_sample.csv)
 all_injected_fakes: clean_rqi_output phase2 phase3 phase4 phase5 phase6 # assign correct input to clean_rqi_output (data/aol_rqi_ratio_1_1_english_spanish_french_1-3.csv)
 all_ob_injected_fakes: phase2 phase3 phase4 phase5 phase6 # assign correct input to clean_rqi_output (data/aol_rqi_ratio_1_1_english_spanish_french_1-3.csv)
