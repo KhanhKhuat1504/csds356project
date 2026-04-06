@@ -1,5 +1,7 @@
 # CSDS356 Project
 
+For running the whole thing using Makefiles, see the README in the Attacker Directory (We will probably want to update this later to make it cleaner, but we can get results using this for now)
+
 ## Data
 
 First download the dataset `user-ct-test-collection-02.txt` from Kaggle and put it under the `data/` directory. This is a tab-separated file with columns: AnonID, Query, QueryTime, ItemRank, ClickURL.
