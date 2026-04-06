@@ -51,6 +51,7 @@ function shuffleQueries(queryList) {
   return shuffled;
 }
 
+
 function writeQueriesToCsv(outputPath, rows) {
   /*
     Write a list of query objects to a CSV file.

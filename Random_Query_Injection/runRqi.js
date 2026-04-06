@@ -25,8 +25,8 @@ const { mixRealAndFakeQueries } = require("./mixQueries");
  */
 
 async function main() {
-  const inputCsv = path.join(__dirname, "..", "data/aol_sample.csv");
-  const outputDir = path.join(__dirname, "../outputs");
+  const inputCsv = path.join(__dirname, "..", "aol_sample.csv");
+  const outputDir = path.join(__dirname, "../Random_Query_Injection/outputs");
 
   const fakeRatio = parseInt(process.argv[2], 10) || 3;
   const minWords = parseInt(process.argv[3], 10) || 1;
@@ -40,7 +40,7 @@ async function main() {
   const languageLabel = languages.join("_");
   const outputCsv = path.join(
     outputDir,
-    `aol_rqi_ratio_1_${fakeRatio}_${languageLabel}_${minWords}-${maxWords}.csv`
+    `AOL_RQI_Ratio_1:${fakeRatio}_${languageLabel} used ${minWords} to ${maxWords} words.csv`
   );
 
   ensureDirectory(outputDir);

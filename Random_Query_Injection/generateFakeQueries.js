@@ -14,6 +14,7 @@ function loadWordlist(filePath) {
     .filter(Boolean);
 }
 
+// Utility function to sample n unique items from an array without replacement
 function sampleWithoutReplacement(arr, n) {
   const copy = [...arr];
   const result = [];

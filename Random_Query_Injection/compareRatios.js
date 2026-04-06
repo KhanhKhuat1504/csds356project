@@ -188,13 +188,13 @@ function extractDisplayName(filename) {
 function getRqiFiles(outputsDir) {
   return fs.readdirSync(outputsDir)
     .filter(file => file.endsWith(".csv"))
-    .filter(file => file.startsWith("aol_rqi_ratio_"))
+    .filter(file => file.startsWith("AOL_RQI_Ratio_"))
     .sort((a, b) => extractRatioValue(a) - extractRatioValue(b));
 }
 
 async function main() {
   const baseDir = __dirname;
-  const outputsDir = path.join(baseDir, "outputs");
+  const outputsDir = path.join(__dirname, "outputs");
   const originalPath = path.join(baseDir, "..", "aol_queries_only.csv");
 
   const originalRows = await readCsv(originalPath);
