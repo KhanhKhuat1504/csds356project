@@ -25,8 +25,8 @@ const { mixRealAndFakeQueries } = require("./mixQueries");
  */
 
 async function main() {
-  const inputCsv = path.join(__dirname, "..", "aol_queries_only.csv");
-  const outputDir = path.join(__dirname, "outputs");
+  const inputCsv = path.join(__dirname, "..", "data/aol_sample.csv");
+  const outputDir = path.join(__dirname, "../outputs");
 
   const fakeRatio = parseInt(process.argv[2], 10) || 3;
   const minWords = parseInt(process.argv[3], 10) || 1;

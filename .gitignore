@@ -126,3 +126,34 @@ pipeline_ready_base.csv
 output/
 output_*/
 outputs/
+
+# Node
+node_modules/
+**/node_modules/
+package-lock.json
+**/package-lock.json
+.package-lock.json
+**/.package-lock.json
+
+# Conda
+.conda/
+
+# Data files
+*.csv
+data/user-ct-test-collection-02.txt
+
+# DP-COMET outputs
+DP-COMET/results/
+DP-COMET/data/
+DP-COMET/logs/
+DP-COMET/*.log
+
+# Attacker outputs
+Attacker/output/
+Attacker/data/
+
+# Model files
+*.pkl
+*.npy
+*.pt
+*.pth
