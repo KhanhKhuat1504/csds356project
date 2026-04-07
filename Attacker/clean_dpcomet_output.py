@@ -86,15 +86,24 @@ def main():
 
     # Only replace Query for real rows that have a match
     label_col = "Label" if "Label" in merged.columns else "label"
-    real_mask = merged[label_col] == "real"
+    
+    # Replace Query for ALL rows that have a match (real and fake)
     has_obfusc   = merged["ObfuscatedQuery"].notna()
-    replace_mask = real_mask & has_obfusc
+    replace_mask = has_obfusc
+
+    # define masks
+    real_mask    = merged[label_col] == "real"
+    has_obfusc   = merged["ObfuscatedQuery"].notna()
+    replace_mask = has_obfusc  # apply to ALL rows, not just real
 
     matched   = replace_mask.sum()
-    unmatched = (real_mask & ~has_obfusc).sum()
-    print(f"  Real queries obfuscated : {matched:,}")
-    print(f"  Real queries unmatched  : {unmatched:,}  (kept original)")
-    print(f"  Fake queries unchanged  : {(~real_mask).sum():,}")
+    unmatched = (~replace_mask).sum()
+    print(f"  Queries obfuscated : {matched:,}")
+    print(f"  Queries unmatched  : {unmatched:,}  (kept original)")
+    print(f"  Real obfuscated    : {(real_mask & has_obfusc).sum():,}")
+    print(f"  Fake obfuscated    : {(~real_mask & has_obfusc).sum():,}")
+
+    merged.loc[replace_mask, "Query"] = merged.loc[replace_mask, "ObfuscatedQuery"]
 
     merged.loc[replace_mask, "Query"] = merged.loc[replace_mask, "ObfuscatedQuery"]
 

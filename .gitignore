@@ -157,3 +157,4 @@ Attacker/data/
 *.npy
 *.pt
 *.pth
+generated_plots/

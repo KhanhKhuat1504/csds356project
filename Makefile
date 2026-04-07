@@ -57,7 +57,7 @@ dp_comet:
 		--training-data ../$(TRAIN_INPUT) \
 		--max-training-rows 5000 \
 		--mechanism $(DP_MECHANISM) \
-		--epsilons $(DP_EPSILONS)
+		--epsilons $(DP_EPSILONS)	
 
 
 # Attacker — Data Pipeline
@@ -197,9 +197,10 @@ collect: sample inject clean_rqi_output gen_fakes split_train
 #   output_<name>/        attack results per variant
 #   output_comparison/    relative privacy CSVs
 
-VARIANTS = \
-	baseline:data/pipeline_ready_baseline.csv \
+# 	baseline:data/pipeline_ready_baseline.csv \
 	rqi:data/pipeline_ready_rqi.csv \
+
+VARIANTS = \
 	dpcomet_mhl_1:data/pipeline_ready_dpcomet_mhl_1.0.csv \
 	dpcomet_mhl_5:data/pipeline_ready_dpcomet_mhl_5.0.csv \
 	dpcomet_mhl_10:data/pipeline_ready_dpcomet_mhl_10.0.csv \
@@ -239,6 +240,8 @@ variants:
 	@echo ""
 	@echo "  Done. Results saved to output_*/ and output_comparison/"
 
+visualize:
+	cd Attacker && python generate_cluster_plots.py
 
 # Cleanup
 # =============================================================================
