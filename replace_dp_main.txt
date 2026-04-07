@@ -1,0 +1,141 @@
+from src.utils import mylogger as MyLogger
+import ir_datasets # type: ignore
+from src.dp_comet import DPComet
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+import os
+import time
+import argparse
+from tqdm import trange
+import warnings
+warnings.filterwarnings("ignore")
+tqdm.pandas()
+
+# arg parser for command line arguments
+parser = argparse.ArgumentParser(description='Modified DP-COMET Obfuscation Script')
+parser.add_argument('--epsilons', type=float, nargs='+', default=[1, 5, 10, 12.5, 15, 17.5, 20, 50],
+                    help='List of epsilon values for differential privacy')
+parser.add_argument('--iterations', type=int, default=50, help='Number of iterations for obfuscation')
+parser.add_argument('--mechanism', type=str, choices=['CMP', 'Mhl'], default='CMP', help='Mechanism to use for obfuscation')
+parser.add_argument('--dataset', type=str,
+                    help='Path to dataset, generated from sample.py')
+parser.add_argument('--training-data', type=str, default="../data/samples/aol_default_training.csv",
+                    help='Path to training dataset - should be a relatively small subset of the AOL dataset, also generated from sample.py')
+parser.add_argument('--max-training-rows', type=int, default=5000, help='Maximum number of rows to use from the training dataset')
+args = parser.parse_args()
+
+logger = MyLogger.create()
+
+# initialize training data
+space_queries = pd.read_csv(args.training_data, delimiter=",")
+space_queries = space_queries[['AnonID', 'Query']].rename(columns={'AnonID': 'qid', 'Query': 'query'})
+space_queries = space_queries[space_queries['query'].notna()]
+space_queries = space_queries[space_queries['query'].str.strip() != '']
+if args.max_training_rows and len(space_queries) > args.max_training_rows:
+    space_queries = space_queries.sample(n=args.max_training_rows, random_state=42).reset_index(drop=True)
+
+# initialize dataset
+aol_raw = pd.read_csv(args.dataset)
+aol_raw = aol_raw[['AnonID', 'Query']].copy()
+aol_raw = aol_raw[aol_raw['Query'].str.strip() != ''].dropna(subset=['Query'])
+queries = pd.DataFrame({
+    'qid': aol_raw['AnonID'].astype(str),
+    'query': aol_raw['Query'].str.lower().str.strip()
+})
+
+
+logger.info(f'Queries in the dataset: {queries.shape[0]}')
+contextual = DPComet(spaceQueries=space_queries['query'], model='facebook/contriever-msmarco')
+logger.info('Mechanism object created')
+
+if __name__ == '__main__':
+    
+    space_embeddings_matrix = contextual.get_embMatrix()
+    logger.info(f'Queries in the space: {space_embeddings_matrix.shape[0]}')
+    logger.info(f'Embedding dimensions: {space_embeddings_matrix.shape[1]}')
+
+    queries_embeddings_matrix = queries['query'].progress_apply(lambda x: contextual.encode(x))
+    queries_embeddings_matrix = np.array(queries_embeddings_matrix.tolist())
+    logger.info(f'Queries in the query space: {queries_embeddings_matrix.shape[0]}')
+    logger.info(f'Embedding dimensions: {queries_embeddings_matrix.shape[1]}')
+    if args.mechanism == 'CMP':
+        #add noise to the embeddings of the space
+        print('Starting the obfuscation process with DP-COMET-CMP')
+        t_0 = time.time()
+        for epsilon in args.epsilons:
+            df = pd.DataFrame(columns=['id', 'text', 'obfuscatedText', 'epsilon', 'mechanism'])
+            contextual.set_epsilon(epsilon)
+            logger.info(f'Noise level: {epsilon}')
+            for i in trange(args.iterations, desc=f'Obfuscating queries with epsilon {epsilon:.1f}'):
+                logger.info(f'Iteration: {i}')
+                query_embs = queries_embeddings_matrix.copy()
+                query_embs = queries_embeddings_matrix + contextual.pullNoiseCMP()
+                #logger.info(f'Noise added to the queries embeddings: {query_embs.shape}')
+
+                #compute the cosine similarity between the space and the queries
+                similarity = np.dot(space_embeddings_matrix, query_embs.T)
+                #logger.info(f'Similarity matrix: {similarity.shape}')
+
+                #get the top most similar queries
+
+                top_k_indices = np.argmax(similarity, axis=0)
+                #get the top k queries
+                top_k_queries = space_queries.iloc[top_k_indices]
+                temp = pd.DataFrame(columns=['id', 'text', 'obfuscatedText', 'epsilon', 'mechanism'])
+                temp['id'] = queries['qid']
+                temp['text'] = queries['query']
+                temp['obfuscatedText'] = top_k_queries['query'].values
+                temp['epsilon'] = epsilon
+                temp['mechanism'] = 'DP-COMET-CMP'
+
+                df = pd.concat([df, temp])
+
+            df.sort_values(by='id', inplace=True, ascending=True)
+            df.reset_index(drop=True, inplace=True)
+            os.makedirs(f'results/{args.dataset}/DP-COMET-Mhl', exist_ok=True)
+            df.to_csv(f'results/{args.dataset}/DP-COMET-Mhl/obfuscatedText_DP-COMET-Mhl_{epsilon}.csv', index=False)
+        logger.info('Finished DP-COMET-CMP')
+        #format time in seconds, 2 decimal places
+        print(f'Finished DP-COMET-CMP in time: {time.time() - t_0:.2f} seconds')
+    elif args.mechanism == 'Mhl':
+        print('Starting the obfuscation process with DP-COMET-Mhl')
+        t_0 = time.time()
+        for epsilon in args.epsilons:
+            df = pd.DataFrame(columns=['id', 'text', 'obfuscatedText', 'epsilon', 'mechanism'])
+            contextual.set_epsilon(epsilon)
+            logger.info(f'Noise level: {epsilon}')
+            for i in trange(args.iterations, desc=f'Obfuscating queries with epsilon {epsilon:.1f}'):
+                logger.info(f'Iteration: {i}')
+                query_embs = queries_embeddings_matrix.copy()
+                query_embs = queries_embeddings_matrix + contextual.pullNoiseMhl()
+                #logger.info(f'Noise added to the queries embeddings: {query_embs.shape}')
+
+                #compute the cosine similarity between the space and the queries
+                similarity = np.dot(space_embeddings_matrix, query_embs.T)
+                #logger.info(f'Similarity matrix: {similarity.shape}')
+
+                #get the top most similar queries
+
+                top_k_indices = np.argmax(similarity, axis=0)
+                #get the top k queries
+                top_k_queries = space_queries.iloc[top_k_indices]
+                temp = pd.DataFrame(columns=['id', 'text', 'obfuscatedText', 'epsilon', 'mechanism'])
+                temp['id'] = queries['qid']
+                temp['text'] = queries['query']
+                temp['obfuscatedText'] = top_k_queries['query'].values
+                temp['epsilon'] = epsilon
+                temp['mechanism'] = 'DP-COMET-Mhl'
+
+                df = pd.concat([df, temp])
+
+            df.sort_values(by='id', inplace=True, ascending=True)
+            df.reset_index(drop=True, inplace=True)
+            os.makedirs(f'results/{args.dataset}/DP-COMET-Mhl', exist_ok=True)
+            df.to_csv(f'results/{args.dataset}/DP-COMET-Mhl/obfuscatedText_DP-COMET-Mhl_{epsilon}.csv', index=False)
+        logger.info('Finished DP-COMET-Mhl')
+
+        print(f'Finished DP-COMET-Mhl in time: {time.time() - t_0:.2f} seconds')
+    else:
+        logger.error('Invalid mechanism selected. Choose either "CMP" or "Mhl".')
+        raise ValueError('Invalid mechanism selected. Choose either "CMP" or "Mhl".')
